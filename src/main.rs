@@ -23,7 +23,7 @@ fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .add_systems(Startup, setup)
-        // .add_systems(Update, recenter_walls)
+        .add_systems(Update, recenter_walls)
         .run();
 }
 
@@ -67,4 +67,22 @@ fn setup(
         },
         _marker: WallMarkerComponent(Side::Right),
     });
+}
+
+fn recenter_walls(
+ mut window_resize_reader: EventReader<WindowResized>,
+ mut wall_transform_query: Query<(&mut Transform, &WallMarkerComponent)>,
+) {
+    for event in window_resize_reader.read() {
+        for (mut transform, wall_marker) in wall_transform_query.iter_mut() {
+            match wall_marker.0 {
+                Side::Left => {
+                    transform.translation.x = event.width as f32 / 3.;
+                }
+                Side::Right => {
+                    transform.translation.x = event.width as f32 * 2. / 3.;
+                }
+            }
+        }
+    }
 }
